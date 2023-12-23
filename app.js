@@ -23,17 +23,26 @@ app.get('/', (req, res) => {
     res.render('index', { title: 'Screen recorder practice', recordingsFolder });
 });
 
+
 app.post('/save-recording', (req, res) => {
     const fileName = `recording_${Date.now()}.webm`;
     const filePath = path.join(recordingsFolder, fileName);
-    const fileStream = fs.createWriteStream(filePath);
+    const fileStream = fs.createWriteStream(filePath , {
+        BufferEncoding : "video/webm"
+    });
 
     res.header('Content-Type', 'video/webm')
+
+    res.writeHead(200, {
+        'Content-Type': 'video/webm',
+        // 'Content-disposition': 'attachment; filename=data.json'
+    });
+    res.write(fileStream);
     req.pipe(fileStream);
 
     fileStream.on('finish', () => {
         console.log('Recording saved!');
-        res.status(200).header('Content-Type', 'video/webm').end();
+        res.status(200).end();
     });
 
     fileStream.on('error', (err) => {
